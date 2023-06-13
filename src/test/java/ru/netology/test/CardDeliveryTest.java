@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 import ru.netology.data.DataGenerator;
 
+
 import java.time.Duration;
 
 import static com.codeborne.selenide.Condition.*;
@@ -22,29 +23,31 @@ public class CardDeliveryTest {
     @Test
     @DisplayName("should successful man meeting ")
     void shouldSuccessfulManMeeting() {
-        var daysToAddForFirstMeeting = 4;
-        var firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
-        var daysToAddForSecondMeeting = 7;
-        var secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
-        $("[data-test-id=city] input").val(DataGenerator.generateCity());
+        DataGenerator.UserInfo validUser = DataGenerator.Registration.generateUser("ru");
+        int daysToAddForFirstMeeting = 4;
+        String firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
+        int daysToAddForSecondMeeting = 7;
+        String secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
+        $("[data-test-id=city] input").setValue(validUser.getCity());
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
         $("[data-test-id=date] input").setValue(firstMeetingDate);
-        $("[data-test-id=name] input").val(DataGenerator.generateName());
-        $("[data-test-id=phone] input").val(DataGenerator.generatePhone());
+        $("[data-test-id=name] input").setValue(validUser.getName());
+        $("[data-test-id=phone] input").setValue(validUser.getPhone());
         $("[data-test-id=agreement]").click();
+        $("button.button").click();
         $(byText("Забронировать")).click();
         $(("Успешно!")).shouldBe(visible, Duration.ofSeconds(15));
-        $("[data-test-id='success-notification'].notification__content")
+        $("[data-test-id=.notification__content]")
                 .shouldHave(exactText("Встреча успешно забронирована на " + firstMeetingDate))
-                .shouldBe(visible);
+                .shouldBe(visible); $(byText("Забронировать")).click();
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
         $("[data-test-id=date] input").setValue(secondMeetingDate);
         $(byText("Забронировать")).click();
         $("[data-test-id='replan-notification'].notification__content")
-                .shouldHave(text("У вас уже ззбронирована встреча на другую дату. Перепланировать?"))
+                .shouldHave(text("У вас уже забронирована встреча на другую дату. Перепланировать?"))
                 .shouldBe(visible);
         $("[data-test-id='replan-notification'] button").click();
-        $("[data-test-id='success-notification'].notification__content")
+        $("[data-test-id='.notification__content']")
                 .shouldHave(exactText("Встреча успешно забронирована на" + secondMeetingDate))
                 .shouldBe(visible);
     }
